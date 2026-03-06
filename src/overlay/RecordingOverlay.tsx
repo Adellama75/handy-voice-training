@@ -19,6 +19,7 @@ const RecordingOverlay: React.FC = () => {
   const [state, setState] = useState<OverlayState>("recording");
   const [levels, setLevels] = useState<number[]>(Array(16).fill(0));
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [femaleProb, setFemaleProb] = useState<number | null>(null);
   const [pitchHz, setPitchHz] = useState<number | null>(null);
   const [f2Hz, setF2Hz] = useState<number | null>(null);
@@ -28,6 +29,11 @@ const RecordingOverlay: React.FC = () => {
     const setupEventListeners = async () => {
       // Listen for show-overlay event from Rust
       const unlistenShow = await listen("show-overlay", async (event) => {
+        // Cancel any pending hide from a previous recording
+        if (hideTimeoutRef.current) {
+          clearTimeout(hideTimeoutRef.current);
+          hideTimeoutRef.current = null;
+        }
         // Sync language from settings each time overlay is shown
         await syncLanguageFromSettings();
         const overlayState = event.payload as OverlayState;
@@ -37,12 +43,13 @@ const RecordingOverlay: React.FC = () => {
 
       // Listen for hide-overlay event from Rust
       const unlistenHide = await listen("hide-overlay", () => {
-        // If we have a gender score to show, linger for 1.5s so the user can read it
-        setTimeout(() => {
+        // Linger for 1.5s so the user can read the stats, then hide
+        hideTimeoutRef.current = setTimeout(() => {
           setIsVisible(false);
           setFemaleProb(null);
           setPitchHz(null);
           setF2Hz(null);
+          hideTimeoutRef.current = null;
         }, 1500);
       });
 
