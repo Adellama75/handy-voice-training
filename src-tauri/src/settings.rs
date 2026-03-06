@@ -360,6 +360,14 @@ pub struct AppSettings {
     #[serde(default = "default_typing_tool")]
     pub typing_tool: TypingTool,
     pub external_script_path: Option<String>,
+    #[serde(default)]
+    pub gender_gate_enabled: bool,
+    #[serde(default = "default_gender_gate_threshold")]
+    pub gender_gate_threshold: f32,
+    #[serde(default)]
+    pub pitch_gate_enabled: bool,
+    #[serde(default = "default_pitch_gate_min_hz")]
+    pub pitch_gate_min_hz: f32,
 }
 
 fn default_model() -> String {
@@ -570,6 +578,14 @@ fn default_typing_tool() -> TypingTool {
     TypingTool::Auto
 }
 
+fn default_gender_gate_threshold() -> f32 {
+    0.5
+}
+
+fn default_pitch_gate_min_hz() -> f32 {
+    165.0
+}
+
 fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
     let mut changed = false;
     for provider in default_post_process_providers() {
@@ -724,6 +740,10 @@ pub fn get_default_settings() -> AppSettings {
         paste_delay_ms: default_paste_delay_ms(),
         typing_tool: default_typing_tool(),
         external_script_path: None,
+        gender_gate_enabled: false,
+        gender_gate_threshold: default_gender_gate_threshold(),
+        pitch_gate_enabled: false,
+        pitch_gate_min_hz: default_pitch_gate_min_hz(),
     }
 }
 
@@ -753,7 +773,7 @@ impl AppSettings {
 pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {
     // Initialize store
     let store = app
-        .store(crate::portable::store_path(SETTINGS_STORE_PATH))
+        .store(SETTINGS_STORE_PATH)
         .expect("Failed to initialize store");
 
     let mut settings = if let Some(settings_value) = store.get("settings") {
@@ -803,7 +823,7 @@ pub fn load_or_create_app_settings(app: &AppHandle) -> AppSettings {
 
 pub fn get_settings(app: &AppHandle) -> AppSettings {
     let store = app
-        .store(crate::portable::store_path(SETTINGS_STORE_PATH))
+        .store(SETTINGS_STORE_PATH)
         .expect("Failed to initialize store");
 
     let mut settings = if let Some(settings_value) = store.get("settings") {
@@ -827,7 +847,7 @@ pub fn get_settings(app: &AppHandle) -> AppSettings {
 
 pub fn write_settings(app: &AppHandle, settings: AppSettings) {
     let store = app
-        .store(crate::portable::store_path(SETTINGS_STORE_PATH))
+        .store(SETTINGS_STORE_PATH)
         .expect("Failed to initialize store");
 
     store.set("settings", serde_json::to_value(&settings).unwrap());

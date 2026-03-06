@@ -135,6 +135,14 @@ const settingUpdaters: {
     commands.changeExperimentalEnabledSetting(value as boolean),
   show_tray_icon: (value) =>
     commands.changeShowTrayIconSetting(value as boolean),
+  gender_gate_enabled: (value) =>
+    commands.changeGenderGateEnabledSetting(value as boolean),
+  gender_gate_threshold: (value) =>
+    commands.changeGenderGateThresholdSetting(value as number),
+  pitch_gate_enabled: (value) =>
+    commands.changePitchGateEnabledSetting(value as boolean),
+  pitch_gate_min_hz: (value) =>
+    commands.changePitchGateMinHzSetting(value as number),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

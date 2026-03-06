@@ -223,6 +223,32 @@
         "description": "Adjust the volume of audio feedback sounds"
       }
     },
+    "pitchGate": {
+      "title": "Pitch Gate",
+      "toggle": {
+        "label": "Pitch Gate",
+        "description": "Only transcribe when your pitch is above a minimum frequency"
+      },
+      "minHz": {
+        "label": "Minimum Pitch (Hz)",
+        "description": "Recordings with average pitch below this value are dropped. Feminine speech is typically above 165 Hz."
+      }
+    },
+    "genderGate": {
+      "title": "Voice Gender Gate",
+      "toggle": {
+        "label": "Voice Gender Gate",
+        "description": "Only transcribe when the speaker is detected as female"
+      },
+      "threshold": {
+        "label": "Feminine Confidence Threshold",
+        "description": "How confident the model must be before letting audio through (0 = any voice, 1 = only very clearly feminine)"
+      },
+      "model": {
+        "notDownloaded": "The gender detection model (~91 MB) has not been downloaded yet.",
+        "download": "Download model"
+      }
+    },
     "advanced": {
       "title": "Advanced",
       "groups": {

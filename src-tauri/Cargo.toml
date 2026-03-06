@@ -69,13 +69,15 @@ rusqlite = { version = "0.37", features = ["bundled"] }
 tar = "0.4.44"
 flate2 = "1.0"
 transcribe-rs = { version = "0.2.8", features = ["whisper", "parakeet", "moonshine", "sense_voice", "gigaam"] }
+ort = { version = "=2.0.0-rc.10", features = ["ndarray", "cuda"] }
+ndarray = "0.16"
 handy-keys = "0.2.2"
 ferrous-opencc = "0.2.3"
 clap = { version = "4", features = ["derive"] }
 specta = "=2.0.0-rc.22"
 specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
-tauri-plugin-dialog = "2.6"
+tauri-plugin-dialog = "~2.4"
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"

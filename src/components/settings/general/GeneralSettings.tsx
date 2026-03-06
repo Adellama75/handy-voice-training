@@ -10,6 +10,8 @@ import { useSettings } from "../../../hooks/useSettings";
 import { VolumeSlider } from "../VolumeSlider";
 import { MuteWhileRecording } from "../MuteWhileRecording";
 import { ModelSettingsCard } from "./ModelSettingsCard";
+import { GenderGate } from "../GenderGate";
+import { PitchGate } from "../PitchGate";
 
 export const GeneralSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -31,6 +33,12 @@ export const GeneralSettings: React.FC = () => {
           disabled={!audioFeedbackEnabled}
         />
         <VolumeSlider disabled={!audioFeedbackEnabled} />
+      </SettingsGroup>
+      <SettingsGroup title={t("settings.genderGate.title")}>
+        <GenderGate descriptionMode="tooltip" grouped={true} />
+      </SettingsGroup>
+      <SettingsGroup title={t("settings.pitchGate.title")}>
+        <PitchGate descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
     </div>
   );

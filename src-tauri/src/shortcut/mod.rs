@@ -1024,6 +1024,42 @@ pub fn set_post_process_selected_prompt(app: AppHandle, id: String) -> Result<()
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_gender_gate_enabled_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.gender_gate_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_gender_gate_threshold_setting(app: AppHandle, threshold: f32) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.gender_gate_threshold = threshold;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_pitch_gate_enabled_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.pitch_gate_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_pitch_gate_min_hz_setting(app: AppHandle, min_hz: f32) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.pitch_gate_min_hz = min_hz;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn change_mute_while_recording_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.mute_while_recording = enabled;

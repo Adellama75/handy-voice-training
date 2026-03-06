@@ -19,6 +19,8 @@ const RecordingOverlay: React.FC = () => {
   const [state, setState] = useState<OverlayState>("recording");
   const [levels, setLevels] = useState<number[]>(Array(16).fill(0));
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
+  const [femaleProb, setFemaleProb] = useState<number | null>(null);
+  const [pitchHz, setPitchHz] = useState<number | null>(null);
   const direction = getLanguageDirection(i18n.language);
 
   useEffect(() => {
@@ -34,7 +36,22 @@ const RecordingOverlay: React.FC = () => {
 
       // Listen for hide-overlay event from Rust
       const unlistenHide = await listen("hide-overlay", () => {
-        setIsVisible(false);
+        // If we have a gender score to show, linger for 1.5s so the user can read it
+        setTimeout(() => {
+          setIsVisible(false);
+          setFemaleProb(null);
+          setPitchHz(null);
+        }, 1500);
+      });
+
+      // Listen for gender detection result
+      const unlistenGender = await listen<number>("gender-result", (event) => {
+        setFemaleProb(event.payload);
+      });
+
+      // Listen for pitch detection result
+      const unlistenPitch = await listen<number | null>("pitch-result", (event) => {
+        setPitchHz(event.payload);
       });
 
       // Listen for mic-level updates
@@ -56,6 +73,8 @@ const RecordingOverlay: React.FC = () => {
         unlistenShow();
         unlistenHide();
         unlistenLevel();
+        unlistenGender();
+        unlistenPitch();
       };
     };
 
@@ -94,7 +113,19 @@ const RecordingOverlay: React.FC = () => {
           </div>
         )}
         {state === "transcribing" && (
-          <div className="transcribing-text">{t("overlay.transcribing")}</div>
+          <div className="transcribing-text">
+            {t("overlay.transcribing")}
+            {femaleProb !== null && (
+              <span style={{ opacity: 0.6, marginInlineStart: "0.5em" }}>
+                ♀ {Math.round(femaleProb * 100)}%
+              </span>
+            )}
+            {pitchHz !== null && (
+              <span style={{ opacity: 0.6, marginInlineStart: "0.4em" }}>
+                · {Math.round(pitchHz)}Hz
+              </span>
+            )}
+          </div>
         )}
         {state === "processing" && (
           <div className="transcribing-text">{t("overlay.processing")}</div>

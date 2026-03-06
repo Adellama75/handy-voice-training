@@ -1,6 +1,6 @@
 .recording-overlay {
   height: 36px;
-  width: 172px;
+  width: 210px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;

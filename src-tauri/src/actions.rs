@@ -1,6 +1,8 @@
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 use crate::apple_intelligence;
 use crate::audio_feedback::{play_feedback_sound, play_feedback_sound_blocking, SoundType};
+use crate::gender_detector::GenderDetector;
+use crate::pitch_detector;
 use crate::managers::audio::AudioRecordingManager;
 use crate::managers::history::HistoryManager;
 use crate::managers::transcription::TranscriptionManager;
@@ -12,12 +14,13 @@ use crate::utils::{
 };
 use crate::TranscriptionCoordinator;
 use ferrous_opencc::{config::BuiltinConfig, OpenCC};
-use log::{debug, error, warn};
+use log::{debug, error, info, warn};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use tauri::AppHandle;
+use tauri::Emitter;
 use tauri::Manager;
 
 /// Drop guard that notifies the [`TranscriptionCoordinator`] when the
@@ -417,6 +420,64 @@ impl ShortcutAction for TranscribeAction {
                     stop_recording_time.elapsed(),
                     samples.len()
                 );
+
+                // Gender gate: if enabled, run the gender detector and silently
+                // drop the recording if the voice is not classified as female.
+                let settings = get_settings(&ah);
+                info!("Gender gate enabled: {}, threshold: {}", settings.gender_gate_enabled, settings.gender_gate_threshold);
+                if settings.gender_gate_enabled {
+                    let gd =
+                        Arc::clone(&ah.state::<Arc<std::sync::Mutex<Option<GenderDetector>>>>());
+                    let mut guard = gd.lock().unwrap();
+                    if let Some(detector) = guard.as_mut() {
+                        let detection = detector.detect(&samples);
+                        drop(guard);
+                        match detection {
+                            Ok(result) => {
+                                info!(
+                                    "Gender detection: female={:.1}%, male={:.1}%",
+                                    result.female_prob * 100.0,
+                                    result.male_prob * 100.0,
+                                );
+                                let _ = ah.emit("gender-result", result.female_prob);
+                                if !result.is_female(settings.gender_gate_threshold) {
+                                    info!("Gender gate blocked: voice not feminine enough");
+                                    utils::hide_recording_overlay(&ah);
+                                    change_tray_icon(&ah, TrayIconState::Idle);
+                                    return;
+                                }
+                            }
+                            Err(e) => {
+                                // If detection fails, log and let it through.
+                                error!("Gender detection failed: {e}");
+                            }
+                        }
+                    } else {
+                        info!("Gender gate enabled but model not downloaded — skipping");
+                    }
+                }
+
+                // Always detect pitch for display feedback (cheap autocorrelation, no ML).
+                let detected_pitch = pitch_detector::detect_pitch(&samples, 16000);
+                let _ = ah.emit("pitch-result", detected_pitch);
+
+                // Pitch gate: if enabled, block if pitch is too low.
+                if settings.pitch_gate_enabled {
+                    match detected_pitch {
+                        Some(f0) => {
+                            info!("Pitch detection: {:.1} Hz (min: {:.1} Hz)", f0, settings.pitch_gate_min_hz);
+                            if f0 < settings.pitch_gate_min_hz {
+                                info!("Pitch gate blocked: {:.1} Hz is below {:.1} Hz", f0, settings.pitch_gate_min_hz);
+                                utils::hide_recording_overlay(&ah);
+                                change_tray_icon(&ah, TrayIconState::Idle);
+                                return;
+                            }
+                        }
+                        None => {
+                            info!("Pitch gate: no voiced frames detected, letting through");
+                        }
+                    }
+                }
 
                 let transcription_time = Instant::now();
                 let samples_clone = samples.clone(); // Clone for history saving

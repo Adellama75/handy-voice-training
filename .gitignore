@@ -28,6 +28,8 @@ dist-ssr
 
 /target/
 recording_*
+check.ps1
+check_env.ps1
 .crush/
 
 # Playwright
@@ -37,3 +39,8 @@ blob-report/
 
 .direnv
 .envrc
+
+# Gender detection model (large binary — download from HuggingFace)
+# https://huggingface.co/prithivMLmods/Common-Voice-Gender-Detection-ONNX
+src-tauri/resources/models/gender_detection.onnx
+src-tauri/resources/models/gender_detection_int8.onnx
