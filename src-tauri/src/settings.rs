@@ -368,6 +368,10 @@ pub struct AppSettings {
     pub pitch_gate_enabled: bool,
     #[serde(default = "default_pitch_gate_min_hz")]
     pub pitch_gate_min_hz: f32,
+    #[serde(default)]
+    pub f2_gate_enabled: bool,
+    #[serde(default = "default_f2_gate_min_hz")]
+    pub f2_gate_min_hz: f32,
 }
 
 fn default_model() -> String {
@@ -586,6 +590,10 @@ fn default_pitch_gate_min_hz() -> f32 {
     165.0
 }
 
+fn default_f2_gate_min_hz() -> f32 {
+    1300.0
+}
+
 fn ensure_post_process_defaults(settings: &mut AppSettings) -> bool {
     let mut changed = false;
     for provider in default_post_process_providers() {
@@ -744,6 +752,8 @@ pub fn get_default_settings() -> AppSettings {
         gender_gate_threshold: default_gender_gate_threshold(),
         pitch_gate_enabled: false,
         pitch_gate_min_hz: default_pitch_gate_min_hz(),
+        f2_gate_enabled: false,
+        f2_gate_min_hz: default_f2_gate_min_hz(),
     }
 }
 

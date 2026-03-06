@@ -21,6 +21,7 @@ const RecordingOverlay: React.FC = () => {
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
   const [femaleProb, setFemaleProb] = useState<number | null>(null);
   const [pitchHz, setPitchHz] = useState<number | null>(null);
+  const [f2Hz, setF2Hz] = useState<number | null>(null);
   const direction = getLanguageDirection(i18n.language);
 
   useEffect(() => {
@@ -41,6 +42,7 @@ const RecordingOverlay: React.FC = () => {
           setIsVisible(false);
           setFemaleProb(null);
           setPitchHz(null);
+          setF2Hz(null);
         }, 1500);
       });
 
@@ -52,6 +54,11 @@ const RecordingOverlay: React.FC = () => {
       // Listen for pitch detection result
       const unlistenPitch = await listen<number | null>("pitch-result", (event) => {
         setPitchHz(event.payload);
+      });
+
+      // Listen for F2 detection result
+      const unlistenF2 = await listen<number | null>("f2-result", (event) => {
+        setF2Hz(event.payload);
       });
 
       // Listen for mic-level updates
@@ -75,6 +82,7 @@ const RecordingOverlay: React.FC = () => {
         unlistenLevel();
         unlistenGender();
         unlistenPitch();
+        unlistenF2();
       };
     };
 
@@ -122,7 +130,12 @@ const RecordingOverlay: React.FC = () => {
             )}
             {pitchHz !== null && (
               <span style={{ opacity: 0.6, marginInlineStart: "0.4em" }}>
-                · {Math.round(pitchHz)}Hz
+                {"· "}{Math.round(pitchHz)}{"Hz"}
+              </span>
+            )}
+            {f2Hz !== null && (
+              <span style={{ opacity: 0.6, marginInlineStart: "0.4em" }}>
+                {"· F2 "}{Math.round(f2Hz)}{"Hz"}
               </span>
             )}
           </div>

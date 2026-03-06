@@ -22,7 +22,7 @@ use tauri_plugin_autostart::ManagerExt;
 use crate::settings::{
     self, get_settings, AutoSubmitKey, ClipboardHandling, KeyboardImplementation, LLMPrompt,
     OverlayPosition, PasteMethod, ShortcutBinding, SoundTheme, TypingTool,
-    APPLE_INTELLIGENCE_DEFAULT_MODEL_ID, APPLE_INTELLIGENCE_PROVIDER_ID,
+    APPLE_INTELLIGENCE_PROVIDER_ID,
 };
 use crate::tray;
 
@@ -1054,6 +1054,24 @@ pub fn change_pitch_gate_enabled_setting(app: AppHandle, enabled: bool) -> Resul
 pub fn change_pitch_gate_min_hz_setting(app: AppHandle, min_hz: f32) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.pitch_gate_min_hz = min_hz;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_f2_gate_enabled_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.f2_gate_enabled = enabled;
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_f2_gate_min_hz_setting(app: AppHandle, min_hz: f32) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.f2_gate_min_hz = min_hz;
     settings::write_settings(&app, settings);
     Ok(())
 }

@@ -12,6 +12,7 @@ import { MuteWhileRecording } from "../MuteWhileRecording";
 import { ModelSettingsCard } from "./ModelSettingsCard";
 import { GenderGate } from "../GenderGate";
 import { PitchGate } from "../PitchGate";
+import { F2Gate } from "../F2Gate";
 
 export const GeneralSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -39,6 +40,9 @@ export const GeneralSettings: React.FC = () => {
       </SettingsGroup>
       <SettingsGroup title={t("settings.pitchGate.title")}>
         <PitchGate descriptionMode="tooltip" grouped={true} />
+      </SettingsGroup>
+      <SettingsGroup title={t("settings.f2Gate.title")}>
+        <F2Gate descriptionMode="tooltip" grouped={true} />
       </SettingsGroup>
     </div>
   );

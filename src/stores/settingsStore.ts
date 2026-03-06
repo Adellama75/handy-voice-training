@@ -143,6 +143,10 @@ const settingUpdaters: {
     commands.changePitchGateEnabledSetting(value as boolean),
   pitch_gate_min_hz: (value) =>
     commands.changePitchGateMinHzSetting(value as number),
+  f2_gate_enabled: (value) =>
+    commands.changeF2GateEnabledSetting(value as boolean),
+  f2_gate_min_hz: (value) =>
+    commands.changeF2GateMinHzSetting(value as number),
 };
 
 export const useSettingsStore = create<SettingsStore>()(

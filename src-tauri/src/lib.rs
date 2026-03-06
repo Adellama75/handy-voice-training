@@ -1,4 +1,5 @@
 mod actions;
+pub mod formant_detector;
 pub mod gender_detector;
 pub mod pitch_detector;
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
@@ -318,6 +319,8 @@ pub fn run(cli_args: CliArgs) {
         shortcut::change_gender_gate_threshold_setting,
         shortcut::change_pitch_gate_enabled_setting,
         shortcut::change_pitch_gate_min_hz_setting,
+        shortcut::change_f2_gate_enabled_setting,
+        shortcut::change_f2_gate_min_hz_setting,
         shortcut::handy_keys::start_handy_keys_recording,
         shortcut::handy_keys::stop_handy_keys_recording,
         trigger_update_check,
@@ -379,7 +382,7 @@ pub fn run(cli_args: CliArgs) {
         )
         .expect("Failed to export typescript bindings");
 
-    let mut builder = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .device_event_filter(tauri::DeviceEventFilter::Always)
         .plugin(tauri_plugin_dialog::init())
         .plugin(
@@ -482,7 +485,7 @@ pub fn run(cli_args: CliArgs) {
                 let _res = window.hide();
 
                 let settings = get_settings(&window.app_handle());
-                let tray_visible =
+                let _tray_visible =
                     settings.show_tray_icon && !window.app_handle().state::<CliArgs>().no_tray;
 
                 #[cfg(target_os = "macos")]

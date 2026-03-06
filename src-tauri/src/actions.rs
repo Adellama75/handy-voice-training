@@ -2,6 +2,7 @@
 use crate::apple_intelligence;
 use crate::audio_feedback::{play_feedback_sound, play_feedback_sound_blocking, SoundType};
 use crate::gender_detector::GenderDetector;
+use crate::formant_detector;
 use crate::pitch_detector;
 use crate::managers::audio::AudioRecordingManager;
 use crate::managers::history::HistoryManager;
@@ -475,6 +476,34 @@ impl ShortcutAction for TranscribeAction {
                         }
                         None => {
                             info!("Pitch gate: no voiced frames detected, letting through");
+                        }
+                    }
+                }
+
+                // Always detect F2 for display feedback (LPC analysis, no ML).
+                let detected_f2 = formant_detector::detect_f2(&samples, 16000);
+                let _ = ah.emit("f2-result", detected_f2);
+
+                // F2 gate: if enabled, block if F2 is too low.
+                if settings.f2_gate_enabled {
+                    match detected_f2 {
+                        Some(f2) => {
+                            info!(
+                                "F2 detection: {:.1} Hz (min: {:.1} Hz)",
+                                f2, settings.f2_gate_min_hz
+                            );
+                            if f2 < settings.f2_gate_min_hz {
+                                info!(
+                                    "F2 gate blocked: {:.1} Hz is below {:.1} Hz",
+                                    f2, settings.f2_gate_min_hz
+                                );
+                                utils::hide_recording_overlay(&ah);
+                                change_tray_icon(&ah, TrayIconState::Idle);
+                                return;
+                            }
+                        }
+                        None => {
+                            info!("F2 gate: no voiced frames detected, letting through");
                         }
                     }
                 }

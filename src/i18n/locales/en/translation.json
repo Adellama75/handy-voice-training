@@ -234,6 +234,17 @@
         "description": "Recordings with average pitch below this value are dropped. Feminine speech is typically above 165 Hz."
       }
     },
+    "f2Gate": {
+      "title": "Resonance Gate (F2)",
+      "toggle": {
+        "label": "Resonance Gate",
+        "description": "Only transcribe when your second formant (F2) is above a minimum frequency. F2 measures vocal tract resonance — the primary trainable feature for a feminine voice."
+      },
+      "minHz": {
+        "label": "Minimum F2 (Hz)",
+        "description": "Recordings with median F2 below this value are dropped. Female F2 averages 1400–1700 Hz; 1300 Hz is a reasonable training floor."
+      }
+    },
     "genderGate": {
       "title": "Voice Gender Gate",
       "toggle": {
